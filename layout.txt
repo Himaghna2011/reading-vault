@@ -1,0 +1,22 @@
+reading-vault/
+├── app.py                    # Main Flask app
+├── models.py                 # Database models
+├── requirements.txt          # Dependencies
+├── .env                      # Environment variables
+├── static/
+│   ├── css/
+│   │   └── style.css        # ALL our beautiful CSS
+│   ├── js/
+│   │   └── app.js           # Frontend interactivity
+│   └── images/
+├── templates/
+│   ├── base.html            # Base template
+│   ├── index.html           # Landing page
+│   ├── login.html           # Login
+│   ├── signup.html          # Signup
+│   ├── dashboard.html       # User dashboard
+│   ├── check.html           # Word checker
+│   ├── wall.html            # Wall of Fame/Shame
+│   └── admin.html           # Your private stats page
+└── instance/
+    └── vault.db             # SQLite database

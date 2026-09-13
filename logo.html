@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Vault Logo</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #2d2d2d;
+            font-family: 'Georgia', serif;
+        }
+        .container {
+            text-align: center;
+        }
+        p {
+            color: #bbb;
+            font-family: sans-serif;
+            font-size: 14px;
+            margin: 8px 0 16px;
+        }
+        button {
+            padding: 12px 28px;
+            background: #d4a574;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #c89560;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="logo" width="200" height="200"></canvas>
+        <p>200x200 · PNG</p>
+        <button onclick="downloadLogo()">Download Logo</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('logo');
+        const ctx = canvas.getContext('2d');
+
+        const w = 200, h = 200, radius = 40;
+
+        // Rounded rectangle (gold)
+        ctx.fillStyle = '#d4a574';
+        ctx.beginPath();
+        ctx.moveTo(radius, 0);
+        ctx.lineTo(w - radius, 0);
+        ctx.quadraticCurveTo(w, 0, w, radius);
+        ctx.lineTo(w, h - radius);
+        ctx.quadraticCurveTo(w, h, w - radius, h);
+        ctx.lineTo(radius, h);
+        ctx.quadraticCurveTo(0, h, 0, h - radius);
+        ctx.lineTo(0, radius);
+        ctx.quadraticCurveTo(0, 0, radius, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        // "RV" text (dark)
+        ctx.fillStyle = '#0a0a0a';
+        ctx.font = 'bold 110px Georgia, "Times New Roman", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('RV', 100, 105);
+
+        function downloadLogo() {
+            const link = document.createElement('a');
+            link.download = 'reading-vault-logo.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>

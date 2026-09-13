@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="badge">
+        <span>✨ Trusted by students worldwide</span>
+    </div>
+    
+    <h1>Master vocabulary through<br><span class="gold">contextual understanding</span></h1>
+    
+    <p>Stop memorizing definitions. Start understanding meaning.<br>
+    AI-powered feedback shows you exactly how well you grasp each word in context.</p>
+    
+    <div class="cta">
+        <a href="{{ url_for('signup') }}" class="btn-primary btn-large">Start Learning Free →</a>
+        <span class="subtext">No credit card required</span>
+    </div>
+</section>
+
+<section class="steps">
+    <h2>How It Works</h2>
+    
+    <div class="grid">
+        <div class="card">
+            <div class="num">01</div>
+            <div class="icon">📖</div>
+            <h3>Encounter a Word</h3>
+            <p>Paste a sentence with a challenging word you want to understand better.</p>
+        </div>
+        
+        <div class="card">
+            <div class="num">02</div>
+            <div class="icon">💭</div>
+            <h3>Guess the Meaning</h3>
+            <p>Write what you think the word means in that specific context.</p>
+        </div>
+        
+        <div class="card">
+            <div class="num">03</div>
+            <div class="icon">🎯</div>
+            <h3>Get AI Feedback</h3>
+            <p>Receive a comprehension score with detailed explanations.</p>
+        </div>
+    </div>
+</section>
+
+<style>
+/* ===== HERO ===== */
+.hero {
+    text-align: center;
+    padding: 60px 20px 30px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.badge {
+    display: inline-block;
+    background: #f3f4f6;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #1a1a2e;
+    margin: 0 0 16px 0;
+}
+
+.hero .gold {
+    color: #d4a574;
+}
+
+.hero p {
+    font-size: 18px;
+    color: #6b7280;
+    line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto 28px;
+}
+
+.cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.cta .subtext {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.btn-large {
+    padding: 16px 40px !important;
+    font-size: 18px !important;
+}
+
+/* ===== STEPS ===== */
+.steps {
+    padding: 40px 20px 60px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.steps h2 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 36px;
+    font-weight: 700;
+    text-align: center;
+    color: #1a1a2e;
+    margin-bottom: 40px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    border: 1px solid #f3f4f6;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    border-color: #d4a574;
+    box-shadow: 0 8px 30px rgba(212,165,116,0.12);
+}
+
+.card .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #d4a574;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.card .icon {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.card h3 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 6px 0;
+}
+
+.card p {
+    font-size: 15px;
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ============================================ */
+/* DARK MODE */
+/* ============================================ */
+
+body.dark-mode .badge {
+    background: #2d2d44;
+    color: #b0b0c8;
+}
+
+body.dark-mode .hero h1 {
+    color: #e5e5e5;
+}
+
+body.dark-mode .hero .gold {
+    color: #d4a574;
+}
+
+body.dark-mode .hero p {
+    color: #b0b0c8;
+}
+
+body.dark-mode .hero .subtext {
+    color: #6b7280;
+}
+
+body.dark-mode .steps h2 {
+    color: #e5e5e5;
+}
+
+body.dark-mode .card {
+    background: #0d0d1a;
+    border-color: #2d2d44;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .card:hover {
+    border-color: #d4a574;
+}
+
+body.dark-mode .card h3 {
+    color: #e5e5e5;
+}
+
+body.dark-mode .card p {
+    color: #b0b0c8;
+}
+
+body.dark-mode .card .num {
+    color: #d4a574;
+}
+
+/* ============================================ */
+/* RESPONSIVE */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 34px;
+    }
+    
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .steps h2 {
+        font-size: 28px;
+    }
+    
+    .btn-large {
+        padding: 14px 28px !important;
+        font-size: 16px !important;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 28px;
+    }
+    
+    .hero p {
+        font-size: 16px;
+    }
+    
+    .card {
+        padding: 24px 16px;
+    }
+}
+</style>
+{% endblock %}

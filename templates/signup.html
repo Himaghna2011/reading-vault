@@ -1,0 +1,706 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Create Account</h1>
+            <p class="auth-subtitle">Start your vocabulary mastery journey today</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}" style="padding: 14px 18px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; font-size: 14px; {{ 'background: #fef2f2; border-left: 4px solid #dc2626; color: #dc2626;' if category == 'error' else 'background: #f0fdf4; border-left: 4px solid #16a34a; color: #16a34a;' }}">
+                        <span style="font-size: 20px;">{{ '❌' if category == 'error' else '✅' }}</span>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('signup') }}" class="auth-form">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required autofocus>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">📧</span>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="user_type">I am a...</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🎓</span>
+                    <select id="user_type" name="user_type">
+                        <option value="">Select your profile</option>
+                        <option value="high_school">High School Student</option>
+                        <option value="college">College Student</option>
+                        <option value="grad">Graduate Student</option>
+                        <option value="esl">ESL Learner</option>
+                        <option value="professional">Working Professional</option>
+                        <option value="avid_reader">Avid Reader</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+                    <button type="button" onclick="togglePassword('password')" class="password-toggle" tabindex="-1">👁️</button>
+                </div>
+                <div class="password-strength" id="password-strength">
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                </div>
+                <span class="input-hint" id="password-hint"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">✓</span>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                    <button type="button" onclick="togglePassword('confirm_password')" class="password-toggle" tabindex="-1">👁️</button>
+                </div>
+                <span class="input-hint" id="confirm-hint"></span>
+            </div>
+            
+            <div class="terms-group">
+                <label>
+                    <input type="checkbox" name="terms" required>
+                    <span>I agree to the <a href="#" onclick="showLegalModal('terms'); return false;">Terms of Service</a> and <a href="#" onclick="showLegalModal('privacy'); return false;">Privacy Policy</a></span>
+                </label>
+            </div>
+            
+            <button type="submit" class="btn-primary btn-full">
+                Create Free Account →
+            </button>
+        </form>
+        
+        <div class="auth-divider">
+            <span>or sign up with</span>
+        </div>
+        
+        <div class="social-login">
+            <button onclick="alert('Google signup coming soon!')" class="btn-social">
+                <span style="color: #4285f4; font-weight: 700;">G</span> Google
+            </button>
+            <button onclick="alert('GitHub signup coming soon!')" class="btn-social">
+                <span>⌨️</span> GitHub
+            </button>
+        </div>
+        
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Sign in →</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- Legal Modals -->
+<div id="legalModal" onclick="closeLegalModal()" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center;">
+    <div onclick="event.stopPropagation()" style="background: white; border-radius: 20px; padding: 30px; max-width: 700px; max-height: 85vh; overflow-y: auto; width: 90%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e5e5e5; padding-bottom: 15px;">
+            <h2 id="legalModalTitle" style="font-family: 'Crimson Pro', serif; font-size: 26px; font-weight: 700;"></h2>
+            <button onclick="closeLegalModal()" style="background: none; border: none; font-size: 28px; cursor: pointer;">&times;</button>
+        </div>
+        <div id="legalModalBody"></div>
+    </div>
+</div>
+
+<script>
+// ============================================
+// TOGGLE PASSWORD
+// ============================================
+function togglePassword(fieldId) {
+    const input = document.getElementById(fieldId);
+    const btn = event.target;
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+    } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+    }
+}
+
+// ============================================
+// PASSWORD STRENGTH
+// ============================================
+const passwordInput = document.getElementById('password');
+const strengthBars = document.querySelectorAll('.strength-bar');
+const passwordHint = document.getElementById('password-hint');
+
+passwordInput.addEventListener('input', function() {
+    const p = this.value;
+    let score = 0;
+    if (p.length >= 8) score++;
+    if (p.length >= 12) score++;
+    if (/[A-Z]/.test(p)) score++;
+    if (/[0-9]/.test(p)) score++;
+    if (/[^A-Za-z0-9]/.test(p)) score++;
+    
+    strengthBars.forEach((bar, i) => {
+        bar.style.background = i < score ? (score <= 2 ? '#dc2626' : score === 3 ? '#ca8a04' : '#16a34a') : '#e5e5e5';
+    });
+    
+    const msgs = ['', 'Weak', 'Fair', 'Good', 'Strong! 🔒'];
+    passwordHint.textContent = msgs[Math.min(score, 4)] || '';
+});
+
+// ============================================
+// CONFIRM PASSWORD
+// ============================================
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const hint = document.getElementById('confirm-hint');
+    if (this.value === passwordInput.value && this.value.length > 0) {
+        hint.textContent = '✓ Passwords match';
+        hint.style.color = '#16a34a';
+    } else if (this.value.length > 0) {
+        hint.textContent = '✗ Passwords do not match';
+        hint.style.color = '#dc2626';
+    } else {
+        hint.textContent = '';
+    }
+});
+
+// ============================================
+// LEGAL MODALS
+// ============================================
+const legalContent = {
+    terms: {
+        title: 'Terms of Service',
+        content: `<p style="color: #737373; font-size: 14px; margin-bottom: 24px;">Last Updated: September 2026</p>
+        <h3 style="font-family: 'Crimson Pro', serif; font-size: 18px; margin: 20px 0 10px;">1. Acceptance of Terms</h3>
+        <p style="color: #404040; line-height: 1.7;">By accessing or using Reading Vault, you agree to these Terms. If you do not agree, please do not use the Service.</p>
+        <h3 style="font-family: 'Crimson Pro', serif; font-size: 18px; margin: 20px 0 10px;">2. Description of Service</h3>
+        <p style="color: #404040; line-height: 1.7;">Reading Vault is an educational platform providing AI-powered vocabulary analysis and learning tools.</p>
+        <h3 style="font-family: 'Crimson Pro', serif; font-size: 18px; margin: 20px 0 10px;">3. User Accounts</h3>
+        <p style="color: #404040; line-height: 1.7;">You are responsible for maintaining the confidentiality of your account credentials. You must be at least 13 years old.</p>
+        <h3 style="font-family: 'Crimson Pro', serif; font-size: 18px; margin: 20px 0 10px;">4. Contact</h3>
+        <p style="color: #404040; line-height: 1.7;">For questions, contact us at himaghnasingh@gmail.com.</p>`
+    },
+    privacy: {
+        title: 'Privacy Policy',
+        content: `<p style="color: #737373; font-size: 14px; margin-bottom: 24px;">Last Updated: September 2026</p>
+        <h3 style="font-family: 'Crimson Pro', serif; font-size: 18px; margin: 20px 0 10px;">1. Introduction</h3>
+        <p style="color: #404040; line-height: 1.7;">Reading Vault is committed to protecting your privacy.</p>
+        <h3 style="font-family: 'Crimson Pro', serif; font-size: 18px; margin: 20px 0 10px;">2. Information We Collect</h3>
+        <p style="color: #404040; line-height: 1.7;">Account information (email, name), usage data (words checked, scores), and analytics data.</p>
+        <h3 style="font-family: 'Crimson Pro', serif; font-size: 18px; margin: 20px 0 10px;">3. How We Use Your Information</h3>
+        <p style="color: #404040; line-height: 1.7;">To provide the Service, personalize your experience, track progress, and improve the platform.</p>
+        <h3 style="font-family: 'Crimson Pro', serif; font-size: 18px; margin: 20px 0 10px;">4. Third-Party Services</h3>
+        <p style="color: #404040; line-height: 1.7;">We use Groq AI/Cohere AI/OpenAI for vocabulary analysis, Free Dictionary API, and IP Geolocation.</p>
+        <h3 style="font-family: 'Crimson Pro', serif; font-size: 18px; margin: 20px 0 10px;">5. Contact</h3>
+        <p style="color: #404040; line-height: 1.7;">For privacy questions: himaghnasingh@gmail.com.</p>`
+    }
+};
+
+function showLegalModal(type) {
+    const modal = document.getElementById('legalModal');
+    const title = document.getElementById('legalModalTitle');
+    const body = document.getElementById('legalModalBody');
+    if (legalContent[type]) {
+        title.textContent = legalContent[type].title;
+        body.innerHTML = legalContent[type].content;
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeLegalModal() {
+    document.getElementById('legalModal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLegalModal();
+});
+
+// ============================================
+// FORM SUBMIT
+// ============================================
+document.querySelector('.auth-form').addEventListener('submit', function(e) {
+    const pwd = document.getElementById('password');
+    const confirm = document.getElementById('confirm_password');
+    if (pwd.value !== confirm.value) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+    }
+});
+
+// ============================================
+// DOUBLE CLICK TO FILL DEMO
+// ============================================
+document.querySelector('.auth-title').addEventListener('dblclick', function() {
+    document.getElementById('email').value = 'demo@readingvault.com';
+    document.getElementById('password').value = 'demo123456';
+    document.getElementById('confirm_password').value = 'demo123456';
+    const hint = document.createElement('div');
+    hint.textContent = '✨ Demo credentials filled!';
+    hint.style.cssText = 'text-align:center;margin-top:12px;color:#d4a574;font-size:13px;';
+    document.querySelector('.auth-form').appendChild(hint);
+    setTimeout(() => hint.remove(), 3000);
+});
+</script>
+
+<style>
+/* ===== AUTH CONTAINER ===== */
+.auth-container {
+    justify-content: center;
+    padding: 3rem 20px;
+    min-height: calc(100vh - 72px);
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #faf8f5 0%, #ffffff 100%);
+}
+
+.auth-card {
+    background: white;
+    border-radius: 28px;
+    padding: 56px 48px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+.auth-header {
+    margin-bottom: 40px;
+}
+
+.auth-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #0a0a0a;
+}
+
+.auth-subtitle {
+    color: #737373;
+    font-size: 17px;
+}
+
+/* ===== FORM ===== */
+.form-group {
+    margin-bottom: 28px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: #404040;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 18px;
+    font-size: 20px;
+    opacity: 0.5;
+}
+
+.input-wrapper input,
+.input-wrapper select {
+    width: 100%;
+    padding: 16px 18px 16px 52px;
+    border: 2px solid #e5e5e5;
+    border-radius: 14px;
+    font-size: 16px;
+    background: #fafafa;
+    transition: all 0.3s ease;
+    font-family: 'Work Sans', sans-serif;
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+    outline: none;
+    border-color: #d4a574;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(212, 165, 116, 0.1);
+}
+
+.input-wrapper input::placeholder {
+    color: #a3a3a3;
+}
+
+.input-wrapper select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    cursor: pointer;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 18px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.password-toggle:hover {
+    opacity: 1;
+}
+
+.password-strength {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.strength-bar {
+    flex: 1;
+    height: 6px;
+    background: #e5e5e5;
+    border-radius: 3px;
+    transition: background 0.3s ease;
+}
+
+.input-hint {
+    display: block;
+    font-size: 13px;
+    margin-top: 8px;
+    color: #737373;
+}
+
+.terms-group {
+    margin: 32px 0 28px;
+}
+
+.terms-group label {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #404040;
+}
+
+.terms-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: #d4a574;
+}
+
+.terms-group a {
+    color: #d4a574;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.terms-group a:hover {
+    text-decoration: underline;
+}
+
+.btn-full {
+    width: 100%;
+    padding: 18px 28px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 17px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #d4a574;
+    color: #0a0a0a;
+    transition: all 0.3s ease;
+}
+
+.btn-full:hover {
+    background: #c89560;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(212, 165, 116, 0.3);
+}
+
+/* ===== DIVIDER ===== */
+.auth-divider {
+    position: relative;
+    text-align: center;
+    margin: 36px 0;
+}
+
+.auth-divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e5e5e5, transparent);
+}
+
+.auth-divider span {
+    position: relative;
+    background: white;
+    padding: 0 20px;
+    color: #737373;
+    font-size: 15px;
+}
+
+/* ===== SOCIAL LOGIN ===== */
+.social-login {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 36px;
+}
+
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    border: 2px solid #e5e5e5;
+    border-radius: 14px;
+    background: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-social:hover {
+    background: #faf8f5;
+    border-color: #d4a574;
+    transform: translateY(-2px);
+}
+
+/* ===== FOOTER ===== */
+.auth-footer {
+    text-align: center;
+    padding-top: 28px;
+    border-top: 1px solid #f0f0f0;
+    color: #737373;
+    font-size: 16px;
+}
+
+.auth-footer a {
+    color: #d4a574;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================ */
+/* DARK MODE FIXES - SIGNUP.HTML */
+/* ============================================ */
+
+body.dark-mode .auth-container {
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+}
+
+body.dark-mode .auth-card {
+    background: #1a1a2e;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .auth-title {
+    color: #e5e5e5;
+}
+
+body.dark-mode .auth-subtitle {
+    color: #8a8aa8;
+}
+
+body.dark-mode .form-group label {
+    color: #b0b0c8;
+}
+
+body.dark-mode .input-wrapper input,
+body.dark-mode .input-wrapper select {
+    background: #0d0d1a;
+    border-color: #2d2d44;
+    color: #e5e5e5;
+}
+
+body.dark-mode .input-wrapper input:focus,
+body.dark-mode .input-wrapper select:focus {
+    background: #0d0d1a;
+    border-color: #d4a574;
+    box-shadow: 0 0 0 4px rgba(212, 165, 116, 0.15);
+}
+
+body.dark-mode .input-wrapper input::placeholder {
+    color: #6b7280;
+}
+
+body.dark-mode .input-wrapper select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8aa8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+body.dark-mode .input-icon {
+    opacity: 0.4;
+}
+
+body.dark-mode .password-toggle {
+    color: #b0b0c8;
+}
+
+body.dark-mode .password-toggle:hover {
+    color: #e5e5e5;
+}
+
+body.dark-mode .strength-bar {
+    background: #2d2d44;
+}
+
+body.dark-mode .input-hint {
+    color: #8a8aa8;
+}
+
+body.dark-mode .terms-group label {
+    color: #b0b0c8;
+}
+
+body.dark-mode .terms-group a {
+    color: #d4a574;
+}
+
+body.dark-mode .auth-divider::before {
+    background: linear-gradient(90deg, transparent, #2d2d44, transparent);
+}
+
+body.dark-mode .auth-divider span {
+    background: #1a1a2e;
+    color: #8a8aa8;
+}
+
+body.dark-mode .btn-social {
+    background: #0d0d1a;
+    border-color: #2d2d44;
+    color: #b0b0c8;
+}
+
+body.dark-mode .btn-social:hover {
+    background: #1a1a2e;
+    border-color: #d4a574;
+    color: #e5e5e5;
+}
+
+body.dark-mode .auth-footer {
+    border-top-color: #2d2d44;
+    color: #8a8aa8;
+}
+
+body.dark-mode .auth-footer a {
+    color: #d4a574;
+}
+
+body.dark-mode .flash-message {
+    background: #2d2d44 !important;
+}
+
+body.dark-mode .flash-message.error {
+    background: rgba(220, 38, 38, 0.15) !important;
+    color: #f87171 !important;
+}
+
+body.dark-mode .flash-message.success {
+    background: rgba(74, 222, 128, 0.15) !important;
+    color: #4ade80 !important;
+}
+
+body.dark-mode #legalModal > div {
+    background: #1a1a2e !important;
+}
+
+body.dark-mode #legalModal h2 {
+    color: #e5e5e5 !important;
+}
+
+body.dark-mode #legalModal p,
+body.dark-mode #legalModal li {
+    color: #b0b0c8 !important;
+}
+
+body.dark-mode #legalModal h3 {
+    color: #e5e5e5 !important;
+}
+
+/* ============================================ */
+/* RESPONSIVE */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 2rem 16px !important;
+    }
+    
+    .auth-card {
+        padding: 32px 24px !important;
+    }
+    
+    .auth-title {
+        font-size: 32px !important;
+    }
+    
+    .auth-subtitle {
+        font-size: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 24px 16px !important;
+        border-radius: 20px !important;
+    }
+    
+    .auth-title {
+        font-size: 28px !important;
+    }
+    
+    .social-login {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .btn-full {
+        font-size: 15px !important;
+        padding: 16px 20px !important;
+    }
+    
+    .input-wrapper input,
+    .input-wrapper select {
+        padding: 14px 16px 14px 44px !important;
+        font-size: 15px !important;
+    }
+    
+    .input-icon {
+        left: 14px !important;
+        font-size: 18px !important;
+    }
+}
+</style>
+{% endblock %}

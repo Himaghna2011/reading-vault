@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .users-container {
+        max-width: 1400px;
+        margin: 32px auto;
+        padding: 0 24px;
+    }
+    .users-header {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: white;
+        padding: 32px 40px;
+        border-radius: 20px;
+        margin-bottom: 32px;
+    }
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .users-table th {
+        background: #f8f9fa;
+        padding: 14px 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #555;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    .users-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+    }
+    .users-table tr:hover {
+        background: #fafafa;
+    }
+    .score-excellent { color: #16a34a; font-weight: 700; }
+    .score-good { color: #ca8a04; font-weight: 700; }
+    .score-poor { color: #dc2626; font-weight: 700; }
+    .streak-badge {
+        background: #fff3cd;
+        color: #856404;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .admin-badge {
+        background: #d4a574;
+        color: #1a1a1a;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .back-link {
+        display: inline-block;
+        margin-bottom: 24px;
+        color: #d4a574;
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
+
+<div class="users-container">
+    <a href="{{ url_for('admin') }}" class="back-link">← Back to Admin Dashboard</a>
+    
+    <div class="users-header">
+        <h1 style="font-family: 'Crimson Pro', serif; font-size: 40px; margin-bottom: 8px;">👥 All Users</h1>
+        <p style="font-size: 16px; opacity: 0.8;">{{ users|length }} total registered users</p>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Type</th>
+                    <th>Words Checked</th>
+                    <th>Avg Score</th>
+                    <th>Streak</th>
+                    <th>Best Streak</th>
+                    <th>Total Time</th>
+                    <th>Joined</th>
+                    <th>Last Active</th>
+                    <th>Admin</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td style="font-weight: 600;">{{ loop.index }}</td>
+                    <td>{{ user.name or '—' }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.user_type or '—' }}</td>
+                    <td style="font-weight: 600;">{{ user.words_checked }}</td>
+                    <td>
+                        {% set avg = user.get_average_score() %}
+                        <span class="{% if avg >= 80 %}score-excellent{% elif avg >= 60 %}score-good{% else %}score-poor{% endif %}">
+                            {{ avg }}%
+                        </span>
+                    </td>
+                    <td><span class="streak-badge">{{ user.current_streak }} 🔥</span></td>
+                    <td>{{ user.longest_streak }}</td>
+                    <td>{{ (user.total_time_spent / 3600)|round(1) }} hrs</td>
+                    <td>{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                    <td>{{ user.last_active.strftime('%b %d, %Y') if user.last_active else 'Never' }}</td>
+                    <td>{% if user.is_admin %}<span class="admin-badge">Admin</span>{% else %}—{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

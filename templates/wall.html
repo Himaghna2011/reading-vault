@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="wall-content">
+    <h1 class="section-title">Global Leaderboard</h1>
+    <p class="text-center">
+        Most mastered and most challenging words across all users
+    </p>
+    
+    <!-- Admin Controls -->
+    {% if current_user.is_admin %}
+    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-bottom: 16px; max-width: 800px; margin-left: auto; margin-right: auto;">
+        <form method="POST" action="{{ url_for('clear_wall') }}" onsubmit="return confirm('⚠️ Delete ALL words from the wall? This cannot be undone!')">
+            <button type="submit" style="background: #dc2626; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s;"
+                    onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                🗑️ Clear All Wall Words
+            </button>
+        </form>
+    </div>
+    {% endif %}
+    
+    <div class="wall-tabs">
+        <button class="wall-tab active" onclick="showWall('fame')">🏆 Wall of Fame</button>
+        <button class="wall-tab" onclick="showWall('shame')">🔥 Wall of Shame</button>
+    </div>
+    
+    <div id="fame-wall" class="leaderboard-list">
+        {% for word in fame_words %}
+        <div class="leaderboard-card {{ 'rank-1' if loop.index == 1 else 'rank-2' if loop.index == 2 else 'rank-3' if loop.index == 3 else '' }}">
+            <div class="card-rank">{% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}#{{ loop.index }}{% endif %}</div>
+            <div class="word-content">
+                <h3 class="word-term">{{ word.word }}</h3>
+            </div>
+            <div class="word-stats">
+                <div class="stat-item"><span class="label">Avg Score</span><span class="value score-excellent">{{ "%.1f"|format(word.average_score) }}%</span></div>
+                <div class="stat-item"><span class="label">Checks</span><span class="value">{{ word.total_checks }}</span></div>
+            </div>
+            {% if current_user.is_admin %}
+            <div style="margin-left: 12px;">
+                <form method="POST" action="{{ url_for('delete_wall_word', word_id=word.id) }}" onsubmit="return confirm('Delete &quot;{{ word.word }}&quot; from the wall? This cannot be undone.')">
+                    <button type="submit" style="background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s;" 
+                            onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                        🗑️ Delete
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div id="shame-wall" class="leaderboard-list hidden">
+        {% for word in shame_words %}
+        <div class="leaderboard-card">
+            <div class="card-rank">#{{ loop.index }}</div>
+            <div class="word-content">
+                <h3 class="word-term">{{ word.word }}</h3>
+            </div>
+            <div class="word-stats">
+                <div class="stat-item"><span class="label">Avg Score</span><span class="value score-poor">{{ "%.1f"|format(word.average_score) }}%</span></div>
+                <div class="stat-item"><span class="label">Checks</span><span class="value">{{ word.total_checks }}</span></div>
+            </div>
+            {% if current_user.is_admin %}
+            <div style="margin-left: 12px;">
+                <form method="POST" action="{{ url_for('delete_wall_word', word_id=word.id) }}" onsubmit="return confirm('Delete &quot;{{ word.word }}&quot; from the wall? This cannot be undone.')">
+                    <button type="submit" style="background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s;"
+                            onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                        🗑️ Delete
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function showWall(type) {
+    document.querySelectorAll('.wall-tab').forEach(tab => tab.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('fame-wall').classList.add('hidden');
+    document.getElementById('shame-wall').classList.add('hidden');
+    document.getElementById(type + '-wall').classList.remove('hidden');
+}
+</script>
+
+<style>
+/* ===== WALL PAGE - FULLY CENTERED ===== */
+
+.wall-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.section-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 40px;
+    font-weight: 700;
+    margin: 48px 0 8px;
+    text-align: center;
+}
+
+.text-center {
+    color: var(--vault-gray-600);
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+/* ===== TABS ===== */
+.wall-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    justify-content: center;
+}
+
+.wall-tab {
+    padding: 12px 32px;
+    border: 2px solid #e5e7eb;
+    border-radius: 40px;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+.wall-tab:hover {
+    border-color: #d4a574;
+}
+
+.wall-tab.active {
+    background: #d4a574;
+    border-color: #d4a574;
+    color: #1a1a1a;
+}
+
+/* ===== LEADERBOARD LIST ===== */
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+/* ===== LEADERBOARD CARDS ===== */
+.leaderboard-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: white;
+    border-radius: 16px;
+    padding: 18px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.leaderboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.leaderboard-card.rank-1 {
+    background: linear-gradient(135deg, #fff9e6, #fff3cd);
+    border-color: #fbbf24;
+}
+
+.leaderboard-card.rank-2 {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-color: #4ade80;
+}
+
+.leaderboard-card.rank-3 {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #f59e0b;
+}
+
+.card-rank {
+    font-size: 28px;
+    font-weight: 700;
+    min-width: 50px;
+    text-align: center;
+    color: #6b7280;
+}
+
+.word-content {
+    flex: 1;
+}
+
+.word-term {
+    font-family: 'Crimson Pro', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a2e;
+}
+
+.word-stats {
+    display: flex;
+    gap: 24px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-item .label {
+    font-size: 11px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-item .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 18px;
+    color: #1a1a2e;
+}
+
+.stat-item .value.score-excellent {
+    color: #16a34a;
+}
+
+.stat-item .value.score-poor {
+    color: #dc2626;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ============================================ */
+/* DARK MODE FIXES - WALL PAGE */
+/* ============================================ */
+
+body.dark-mode .wall-tab {
+    background: #1a1a2e;
+    border-color: #2d2d44;
+    color: #b0b0c8;
+}
+
+body.dark-mode .wall-tab:hover {
+    border-color: #d4a574;
+    color: #e5e5e5;
+}
+
+body.dark-mode .wall-tab.active {
+    background: #d4a574;
+    border-color: #d4a574;
+    color: #1a1a1a;
+}
+
+body.dark-mode .leaderboard-card {
+    background: #0d0d1a !important;
+    border-color: #2d2d44 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4) !important;
+}
+
+body.dark-mode .leaderboard-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6) !important;
+}
+
+body.dark-mode .leaderboard-card.rank-1 {
+    background: #1a1a2e !important;
+    border-color: #fbbf24 !important;
+}
+
+body.dark-mode .leaderboard-card.rank-2 {
+    background: #1a1a2e !important;
+    border-color: #4ade80 !important;
+}
+
+body.dark-mode .leaderboard-card.rank-3 {
+    background: #1a1a2e !important;
+    border-color: #f59e0b !important;
+}
+
+body.dark-mode .word-term {
+    color: #ffffff !important;
+}
+
+body.dark-mode .card-rank {
+    color: #8a8aa8 !important;
+}
+
+body.dark-mode .stat-item .label {
+    color: #6b7280 !important;
+}
+
+body.dark-mode .stat-item .value {
+    color: #e5e5e5 !important;
+}
+
+body.dark-mode .stat-item .value.score-excellent {
+    color: #4ade80 !important;
+}
+
+body.dark-mode .stat-item .value.score-poor {
+    color: #f87171 !important;
+}
+
+body.dark-mode .section-title {
+    color: #e5e5e5 !important;
+}
+
+body.dark-mode .text-center {
+    color: #8a8aa8 !important;
+}
+
+/* ============================================ */
+/* RESPONSIVE */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    .leaderboard-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+    }
+    
+    .word-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .card-rank {
+        font-size: 20px;
+        min-width: auto;
+    }
+    
+    .wall-tabs {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .wall-tab {
+        text-align: center;
+    }
+    
+    .wall-content {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-title {
+        font-size: 28px;
+    }
+    
+    .leaderboard-card {
+        padding: 14px;
+    }
+    
+    .word-term {
+        font-size: 18px;
+    }
+    
+    .word-stats {
+        flex-direction: row;
+        gap: 16px;
+    }
+    
+    .wall-content {
+        padding: 8px;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,494 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to continue your vocabulary journey</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}" style="padding: 14px 18px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; font-size: 14px; {{ 'background: #fef2f2; border-left: 4px solid #dc2626; color: #dc2626;' if category == 'error' else 'background: #f0fdf4; border-left: 4px solid #16a34a; color: #16a34a;' }}">
+                        <span style="font-size: 20px;">{{ '❌' if category == 'error' else '✅' }}</span>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">📧</span>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required autofocus>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="password-header">
+                    <label for="password">Password</label>
+                    <a href="#" onclick="alert('Password reset coming soon!')">Forgot?</a>
+                </div>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <button type="button" onclick="togglePassword()" class="password-toggle" tabindex="-1">👁️</button>
+                </div>
+            </div>
+            
+            <div class="remember-me">
+                <label>
+                    <input type="checkbox" name="remember" checked>
+                    Remember me for 30 days
+                </label>
+            </div>
+            
+            <button type="submit" class="btn-primary btn-full">
+                Sign In →
+            </button>
+        </form>
+        
+        <div class="auth-divider">
+            <span>or continue with</span>
+        </div>
+        
+        <div class="social-login">
+            <button onclick="alert('Google login coming soon!')" class="btn-social">
+                <span style="color: #4285f4; font-weight: 700;">G</span> Google
+            </button>
+            <button onclick="alert('GitHub login coming soon!')" class="btn-social">
+                <span>⌨️</span> GitHub
+            </button>
+        </div>
+        
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('signup') }}">Create one →</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword() {
+    const input = document.getElementById('password');
+    const btn = event.target;
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+    } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+    }
+}
+
+document.querySelector('.auth-title').addEventListener('dblclick', function() {
+    document.getElementById('email').value = 'demo@readingvault.com';
+    document.getElementById('password').value = 'demo123456';
+    const hint = document.createElement('div');
+    hint.textContent = '✨ Demo credentials filled!';
+    hint.style.cssText = 'text-align:center;margin-top:12px;color:#d4a574;font-size:13px;';
+    document.querySelector('.auth-form').appendChild(hint);
+    setTimeout(() => hint.remove(), 3000);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const card = document.querySelector('.auth-card');
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+});
+</script>
+
+<style>
+/* ===== AUTH CONTAINER ===== */
+.auth-container {
+    justify-content: center;
+    padding: 3rem 20px;
+    min-height: calc(100vh - 72px);
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #faf8f5 0%, #ffffff 100%);
+}
+
+.auth-card {
+    background: white;
+    border-radius: 28px;
+    padding: 56px 48px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+}
+
+.auth-header {
+    margin-bottom: 40px;
+}
+
+.auth-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #0a0a0a;
+}
+
+.auth-subtitle {
+    color: #737373;
+    font-size: 17px;
+}
+
+/* ===== FORM ===== */
+.form-group {
+    margin-bottom: 28px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: #404040;
+}
+
+.password-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.password-header a {
+    font-size: 14px;
+    color: #d4a574;
+    text-decoration: none;
+}
+
+.password-header a:hover {
+    text-decoration: underline;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 18px;
+    font-size: 20px;
+    opacity: 0.5;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 16px 18px 16px 52px;
+    border: 2px solid #e5e5e5;
+    border-radius: 14px;
+    font-size: 16px;
+    background: #fafafa;
+    transition: all 0.3s ease;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: #d4a574;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(212, 165, 116, 0.1);
+}
+
+.input-wrapper input::placeholder {
+    color: #a3a3a3;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 18px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.password-toggle:hover {
+    opacity: 1;
+}
+
+.remember-me {
+    margin: 32px 0 28px;
+}
+
+.remember-me label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #404040;
+}
+
+.remember-me input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #d4a574;
+}
+
+.btn-full {
+    width: 100%;
+    padding: 18px 28px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 17px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #d4a574;
+    color: #0a0a0a;
+    transition: all 0.3s ease;
+}
+
+.btn-full:hover {
+    background: #c89560;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(212, 165, 116, 0.3);
+}
+
+/* ===== DIVIDER ===== */
+.auth-divider {
+    position: relative;
+    text-align: center;
+    margin: 36px 0;
+}
+
+.auth-divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e5e5e5, transparent);
+}
+
+.auth-divider span {
+    position: relative;
+    background: white;
+    padding: 0 20px;
+    color: #737373;
+    font-size: 15px;
+}
+
+/* ===== SOCIAL LOGIN ===== */
+.social-login {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 36px;
+}
+
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    border: 2px solid #e5e5e5;
+    border-radius: 14px;
+    background: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-social:hover {
+    background: #faf8f5;
+    border-color: #d4a574;
+    transform: translateY(-2px);
+}
+
+/* ===== FOOTER ===== */
+.auth-footer {
+    text-align: center;
+    padding-top: 28px;
+    border-top: 1px solid #f0f0f0;
+    color: #737373;
+    font-size: 16px;
+}
+
+.auth-footer a {
+    color: #d4a574;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================ */
+/* DARK MODE FIXES - LOGIN.HTML */
+/* ============================================ */
+
+body.dark-mode .auth-container {
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+}
+
+body.dark-mode .auth-card {
+    background: #1a1a2e;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .auth-title {
+    color: #e5e5e5;
+}
+
+body.dark-mode .auth-subtitle {
+    color: #8a8aa8;
+}
+
+body.dark-mode .form-group label {
+    color: #b0b0c8;
+}
+
+body.dark-mode .password-header a {
+    color: #d4a574;
+}
+
+body.dark-mode .input-wrapper input {
+    background: #0d0d1a;
+    border-color: #2d2d44;
+    color: #e5e5e5;
+}
+
+body.dark-mode .input-wrapper input:focus {
+    background: #0d0d1a;
+    border-color: #d4a574;
+    box-shadow: 0 0 0 4px rgba(212, 165, 116, 0.15);
+}
+
+body.dark-mode .input-wrapper input::placeholder {
+    color: #6b7280;
+}
+
+body.dark-mode .input-icon {
+    opacity: 0.4;
+}
+
+body.dark-mode .password-toggle {
+    color: #b0b0c8;
+}
+
+body.dark-mode .remember-me label {
+    color: #b0b0c8;
+}
+
+body.dark-mode .remember-me input[type="checkbox"] {
+    accent-color: #d4a574;
+}
+
+body.dark-mode .auth-divider::before {
+    background: linear-gradient(90deg, transparent, #2d2d44, transparent);
+}
+
+body.dark-mode .auth-divider span {
+    background: #1a1a2e;
+    color: #8a8aa8;
+}
+
+body.dark-mode .btn-social {
+    background: #0d0d1a;
+    border-color: #2d2d44;
+    color: #b0b0c8;
+}
+
+body.dark-mode .btn-social:hover {
+    background: #1a1a2e;
+    border-color: #d4a574;
+    color: #e5e5e5;
+}
+
+body.dark-mode .auth-footer {
+    border-top-color: #2d2d44;
+    color: #8a8aa8;
+}
+
+body.dark-mode .auth-footer a {
+    color: #d4a574;
+}
+
+body.dark-mode .flash-message {
+    background: #2d2d44 !important;
+}
+
+body.dark-mode .flash-message.error {
+    background: rgba(220, 38, 38, 0.15) !important;
+    color: #f87171 !important;
+}
+
+body.dark-mode .flash-message.success {
+    background: rgba(74, 222, 128, 0.15) !important;
+    color: #4ade80 !important;
+}
+
+/* ============================================ */
+/* RESPONSIVE */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 2rem 16px !important;
+    }
+    
+    .auth-card {
+        padding: 32px 24px !important;
+    }
+    
+    .auth-title {
+        font-size: 32px !important;
+    }
+    
+    .auth-subtitle {
+        font-size: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 24px 16px !important;
+        border-radius: 20px !important;
+    }
+    
+    .auth-title {
+        font-size: 28px !important;
+    }
+    
+    .social-login {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .btn-full {
+        font-size: 15px !important;
+        padding: 16px 20px !important;
+    }
+    
+    .input-wrapper input {
+        padding: 14px 16px 14px 44px !important;
+        font-size: 15px !important;
+    }
+    
+    .input-icon {
+        left: 14px !important;
+        font-size: 18px !important;
+    }
+}
+</style>
+{% endblock %}

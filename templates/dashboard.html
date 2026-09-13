@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- 🔥 PERSISTENT CHECK WORD BUTTON - Always visible on mobile -->
+<div class="persistent-check-btn">
+    <a href="{{ url_for('check') }}" class="check-word-fab">
+        <span class="fab-icon">📝</span>
+        <span class="fab-text">Check Word</span>
+    </a>
+</div>
+
+<!-- Main Content -->
+<div class="dashboard-content" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    
+    <!-- 🔥 HERO CTA - First thing they see -->
+    <div class="dashboard-hero">
+        <div class="hero-text">
+            <h1 class="hero-greeting">Welcome back, {{ user.name or user.email.split('@')[0] }}</h1>
+            <p class="hero-subtitle">Ready to test your vocabulary comprehension?</p>
+        </div>
+        <a href="{{ url_for('check') }}" class="hero-cta-btn">
+            📝 Check a Word Now
+        </a>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <span class="stat-value">{{ user.words_checked }}</span>
+            <span class="stat-label">Words Checked</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <span class="stat-value">{{ avg_score }}%</span>
+            <span class="stat-label">Average Score</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🔥</div>
+            <span class="stat-value">{{ user.current_streak }}</span>
+            <span class="stat-label">Day Streak</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <span class="stat-value">{{ (user.total_time_spent / 60)|round|int }}</span>
+            <span class="stat-label">Minutes Spent</span>
+        </div>
+    </div>
+    
+    <!-- Recent Checks -->
+    <div class="section-header">
+        <h2 class="serif section-heading">Recent Checks</h2>
+        {% if recent_checks %}
+        <a href="{{ url_for('check') }}" class="check-again-link">Check Another →</a>
+        {% endif %}
+    </div>
+    
+    <div class="word-grid">
+        {% for check in recent_checks %}
+        <div class="vault-word-card">
+            <div class="card-header">
+                <h3 class="card-word">{{ check.word }}</h3>
+                <span class="card-score {{ 'excellent' if check.score >= 90 else 'good' if check.score >= 70 else 'fair' if check.score >= 50 else 'poor' }}">{{ check.score }}%</span>
+            </div>
+            <div class="card-context">"{{ check.sentence[:150] }}{% if check.sentence|length > 150 %}...{% endif %}"</div>
+            {% if check.book_title %}<div style="color: var(--vault-gray-600); font-size: 14px; margin-bottom: 8px;">📖 {{ check.book_title }} by {{ check.author }}</div>{% endif %}
+            <div class="card-meta"><span>📅 {{ check.created_at.strftime('%b %d, %Y') }}</span><span>⏱️ {{ check.time_spent }}s</span></div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <h3>No words checked yet</h3>
+            <p>Start building your vocabulary comprehension today</p>
+            <a href="{{ url_for('check') }}" class="btn-primary">Check Your First Word →</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+/* ===== DASHBOARD HERO ===== */
+.dashboard-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.hero-greeting {
+    font-family: 'Crimson Pro', serif;
+    font-size: 32px;
+    color: white;
+    margin-bottom: 8px;
+}
+.hero-subtitle {
+    color: rgba(255,255,255,0.7);
+    font-size: 16px;
+}
+.hero-cta-btn {
+    background: #d4a574;
+    color: #1a1a1a;
+    padding: 16px 28px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 16px;
+    white-space: nowrap;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(212,165,116,0.4);
+}
+.hero-cta-btn:hover {
+    background: #c89560;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212,165,116,0.5);
+}
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 48px 0 24px;
+}
+.section-heading {
+    font-size: 28px;
+    margin: 0;
+}
+.check-again-link {
+    color: #d4a574;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+}
+.check-again-link:hover {
+    text-decoration: underline;
+}
+
+/* ===== WORD CARDS ===== */
+.vault-word-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s;
+}
+.vault-word-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.vault-word-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f3f4f6;
+}
+.vault-word-card .card-word {
+    font-family: 'Crimson Pro', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+}
+.vault-word-card .card-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+.vault-word-card .card-score.excellent {
+    color: #16a34a;
+    background: #f0fdf4;
+}
+.vault-word-card .card-score.good {
+    color: #65a30d;
+    background: #f7fee7;
+}
+.vault-word-card .card-score.fair {
+    color: #ca8a04;
+    background: #fefce8;
+}
+.vault-word-card .card-score.poor {
+    color: #dc2626;
+    background: #fef2f2;
+}
+.vault-word-card .card-context {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 8px 0;
+}
+.vault-word-card .card-meta {
+    display: flex;
+    gap: 16px;
+    color: #9ca3af;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+/* ===== WORD GRID ===== */
+.word-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+/* ===== PERSISTENT FLOATING BUTTON ===== */
+.persistent-check-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999;
+    display: none;
+}
+.check-word-fab {
+    background: #d4a574;
+    color: #1a1a1a;
+    padding: 14px 22px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(212,165,116,0.5);
+    transition: all 0.2s;
+}
+.check-word-fab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(212,165,116,0.6);
+}
+.fab-icon {
+    font-size: 20px;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+.empty-state h3 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+.empty-state p {
+    color: var(--vault-gray-600);
+    margin-bottom: 24px;
+}
+
+/* ===== DARK MODE FIXES FOR DASHBOARD ===== */
+body.dark-mode .vault-word-card {
+    background: #2d2d44 !important;
+    border-color: #3d3d5c !important;
+}
+
+body.dark-mode .vault-word-card .card-word {
+    color: #e5e5e5 !important;
+}
+
+body.dark-mode .vault-word-card .card-context {
+    background: #b0b0c8 !important;
+    color: #1a1a2e !important;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 12px 0;
+}
+
+body.dark-mode .vault-word-card .card-meta {
+    color: #8a8aa8 !important;
+}
+
+body.dark-mode .vault-word-card .card-meta span {
+    color: #8a8aa8 !important;
+}
+
+body.dark-mode .vault-word-card .card-header {
+    border-bottom-color: #3d3d5c !important;
+}
+
+body.dark-mode .vault-word-card .card-score.excellent {
+    color: #4ade80 !important;
+    background: rgba(74, 222, 128, 0.15) !important;
+}
+
+body.dark-mode .vault-word-card .card-score.good {
+    color: #fbbf24 !important;
+    background: rgba(251, 191, 36, 0.15) !important;
+}
+
+body.dark-mode .vault-word-card .card-score.fair {
+    color: #fb923c !important;
+    background: rgba(251, 146, 60, 0.15) !important;
+}
+
+body.dark-mode .vault-word-card .card-score.poor {
+    color: #f87171 !important;
+    background: rgba(248, 113, 113, 0.15) !important;
+}
+
+body.dark-mode .empty-state {
+    background: #2d2d44 !important;
+    border-color: #3d3d5c !important;
+}
+
+body.dark-mode .empty-state h3 {
+    color: #e5e5e5 !important;
+}
+
+body.dark-mode .empty-state p {
+    color: #b0b0c8 !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .word-grid {
+        grid-template-columns: 1fr;
+    }
+    .persistent-check-btn {
+        display: block;
+    }
+    .dashboard-hero {
+        flex-direction: column;
+        text-align: center;
+    }
+    .hero-cta-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .section-header {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-content {
+        padding: 10px !important;
+    }
+    .dashboard-hero {
+        padding: 20px;
+    }
+    .hero-greeting {
+        font-size: 24px;
+    }
+    .stat-card .stat-value {
+        font-size: 28px !important;
+    }
+}
+</style>
+{% endblock %}

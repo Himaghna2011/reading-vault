@@ -1,0 +1,11 @@
+<!-- templates/404.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center; padding: 80px 20px;">
+    <h1 style="font-family: 'Crimson Pro', serif; font-size: 72px; margin-bottom: 20px;">404</h1>
+    <h2 style="font-family: 'Crimson Pro', serif; font-size: 28px; margin-bottom: 16px;">Page Not Found</h2>
+    <p style="color: var(--vault-gray-600); margin-bottom: 32px;">The page you're looking for doesn't exist.</p>
+    <a href="{{ url_for('index') }}" class="btn-primary">Go Home →</a>
+</div>
+{% endblock %}
