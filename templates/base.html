@@ -759,7 +759,6 @@
                     <a href="{{ url_for('index') }}">Home</a>
                 {% endif %}
                 <a href="{{ url_for('check') }}">Check Word</a>
-                <a href="{{ url_for('wall') }}">Leaderboard</a>
                 {% if current_user.is_authenticated %}
                     {% if current_user.is_admin %}
                         <a href="{{ url_for('admin') }}" class="admin-link">Admin</a>
@@ -797,7 +796,6 @@
                 <a href="{{ url_for('index') }}">Home</a>
             {% endif %}
             <a href="{{ url_for('check') }}">Check Word</a>
-            <a href="{{ url_for('wall') }}">Leaderboard</a>
             {% if current_user.is_authenticated %}
                 {% if current_user.is_admin %}
                     <a href="{{ url_for('admin') }}">Admin</a>
@@ -943,7 +941,6 @@
                 <div class="link-group">
                     <h4>Product</h4>
                     <a href="{{ url_for('check') }}">Check Word</a>
-                    <a href="{{ url_for('wall') }}">Leaderboard</a>
                     <a class="footer-link" onclick="showModal('pricing')">Pricing</a>
                     <a class="footer-link" onclick="showModal('faq')">FAQ</a>
                 </div>
@@ -1037,7 +1034,6 @@
                         <li>Unlimited word checks</li>
                         <li>AI-powered contextual analysis</li>
                         <li>Personal progress tracking</li>
-                        <li>Global leaderboards</li>
                         <li>Book & author tracking</li>
                     </ul>
                     <p><strong>No credit card required. Ever.</strong></p>
@@ -1075,7 +1071,6 @@
                         <li>AI-powered contextual scoring with personalized feedback</li>
                         <li>Progress tracking with streaks and analytics</li>
                         <li>Curated sentence bank with 350+ practice sentences across difficulty levels</li>
-                        <li>Global leaderboard to compare performance</li>
                         <li>Book and author tracking</li>
                     </ul>
                     
@@ -1174,7 +1169,6 @@
             <li><strong>No selling data.</strong> Your information is never sold or rented.</li>
             <li><strong>No behavioral profiling.</strong> We do not build commercial profiles of students.</li>
             <li><strong>No IP logging.</strong> We do not store IP addresses.</li>
-            <li><strong>No public exposure of your work.</strong> The public leaderboard shows word-level averages only — never your sentences, guesses, or book titles.</li>
         </ul>
 
         <h3>5. Third-Party Services</h3>
@@ -1186,16 +1180,7 @@
             <li><strong>Neon</strong> — database hosting (encrypted at rest).</li>
         </ul>
 
-        <h3>6. What Goes on the Public Leaderboard</h3>
-        <p>The global leaderboard displays only:</p>
-        <ul>
-            <li>The word</li>
-            <li>The average comprehension score across all users</li>
-            <li>The number of times it's been checked</li>
-        </ul>
-        <p>No sentences, no guesses, no names, no book titles, and nothing that identifies any student.</p>
-
-        <h3>7. Data Retention</h3>
+        <h3>6. Data Retention</h3>
         <ul>
             <li><strong>Account data:</strong> retained until you delete your account.</li>
             <li><strong>Word checks:</strong> retained for up to 90 days for progress tracking, then automatically deleted.</li>
@@ -1203,17 +1188,17 @@
             <li><strong>Aggregate daily stats:</strong> kept indefinitely — these contain no personal information.</li>
         </ul>
 
-        <h3>8. Your Rights</h3>
+        <h3>7. Your Rights</h3>
         <ul>
             <li><strong>Delete your account</strong> at any time from your profile menu. This permanently removes your account, word checks, and progress.</li>
             <li><strong>Access your data</strong> by viewing your dashboard.</li>
             <li><strong>Contact us</strong> for any privacy question or data request.</li>
         </ul>
 
-        <h3>9. Children's Privacy</h3>
+        <h3>8. Children's Privacy</h3>
         <p>Reading Vault is intended for users 13 and older, or for use in a school setting where the school manages student accounts. If you believe a child under 13 has created an account without appropriate consent, contact us and we will delete it promptly.</p>
 
-        <h3>10. Security</h3>
+        <h3>9. Security</h3>
         <ul>
             <li>HTTPS encryption for all traffic</li>
             <li>Password hashing (PBKDF2)</li>
@@ -1221,7 +1206,7 @@
             <li>No admin access to plaintext passwords</li>
         </ul>
 
-        <h3>11. Contact</h3>
+        <h3>10. Contact</h3>
         <p>For privacy questions or data requests:<br>
         📧 <strong>himaghnasingh@gmail.com</strong></p>
 

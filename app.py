@@ -81,117 +81,6 @@ def sanitize_text_for_ai(text):
 
     return text
 
-BLOCKED_WORDS = {
-    # ===== PROFANITY =====
-    'fuck', 'fucking', 'fucked', 'fucker', 'motherfucker', 'shit', 'shitter', 'bullshit',
-    'ass', 'asshole', 'dumbass', 'jackass', 'bitch', 'bitching', 'sonofabitch',
-    'damn', 'goddamn', 'crap', 'piss', 'dick', 'cock', 'pussy', 'cunt',
-    'bastard', 'whore', 'slut', 'douche', 'prick', 'twat', 'wank', 'wanker',
-    'bollocks', 'bloody', 'sod', 'git', 'minge', 'knob', 'bellend', 'tosser',
-    
-    # ===== SLURS & HATE SPEECH =====
-    'nigger', 'nigga', 'faggot', 'fag', 'tranny', 'shemale', 'he-she',
-    'chink', 'kike', 'spic', 'gook', 'wetback', 'cracker', 'honky',
-    'redneck', 'hillbilly', 'paki', 'raghead', 'towelhead', 'sandnigger',
-    'coon', 'jigaboo', 'porchmonkey', 'retard', 'retarded', 'midget',
-    'dwarf', 'fatso', 'lardass', 'ugly', 'freak', 'cripple',
-    
-    # ===== SEXUAL =====
-    'sex', 'porn', 'porno', 'pornography', 'xxx', 'nsfw', 'onlyfans',
-    'penis', 'vagina', 'anal', 'oral', 'masturbate', 'masturbation',
-    'cum', 'semen', 'jizz', 'sperm', 'clit', 'clitoris', 'tits', 'boobs',
-    'nipple', 'nipples', 'nude', 'nudes', 'naked', 'nakedness',
-    'stripper', 'hooker', 'escort', 'prostitute', 'brothel',
-    'incest', 'rape', 'rapist', 'molest', 'molester', 'pedo', 'pedophile',
-    'bestiality', 'zoophilia', 'necrophilia',
-    
-    # ===== VIOLENCE =====
-    'kill', 'killer', 'murder', 'murderer', 'suicide', 'terrorist',
-    'terrorism', 'bomb', 'bomber', 'shoot', 'shooter', 'shooting',
-    'stab', 'stabber', 'massacre', 'slaughter', 'torture', 'genocide',
-    'holocaust', 'lynch', 'execute', 'execution', 'assassinate',
-    
-    # ===== DRUGS =====
-    'cocaine', 'coke', 'heroin', 'meth', 'methamphetamine', 'crystal meth',
-    'weed', 'marijuana', 'cannabis', 'pot', 'lsd', 'acid', 'ecstasy',
-    'mdma', 'molly', 'fentanyl', 'opium', 'opioid', 'crack', 'crackpipe',
-    'joint', 'blunt', 'bong', 'vape', 'nicotine', 'cigarette',
-    'overdose', 'needle', 'inject', 'syringe',
-    
-    # ===== HATE GROUPS =====
-    'nazi', 'hitler', 'fascist', 'fascism', 'kkk', 'klu klux klan',
-    'white power', 'black power', 'supremacist', 'supremacy',
-    'terrorist', 'al qaeda', 'isis', 'isil', 'taliban', 'hamas',
-    
-    # ===== SELF-HARM =====
-    'suicide', 'suicidal', 'selfharm', 'self-harm', 'cutter', 'cutting',
-    'anorexia', 'bulimia', 'eating disorder',
-    
-    # ===== SCAMS/SPAM =====
-    'free money', 'click here', 'buy now', 'limited offer', 'act now',
-    'congratulations winner', 'you have won', 'claim your prize',
-    'casino', 'gambling', 'poker', 'blackjack', 'roulette', 'betting',
-    
-    # ===== COMMON MISSPELLINGS =====
-    'fck', 'f*ck', 'f**k', 'fuk', 'fukk', 'sh*t', 'sh1t', 'sht',
-    'b*tch', 'b1tch', 'bich', 'd*ck', 'd1ck', 'dik',
-    'p*ssy', 'puss', 'c*nt', 'c*ck', 'kock', 'azz', 'ahole',
-    'f4g', 'f@g', 'n1gger', 'n1gga', 'nig', 'ch1nk',
-}
-
-def contains_blocked_content(text):
-    """Check if text contains any blocked words - with bypass detection"""
-    if not text:
-        return False
-    
-    text_lower = text.lower()
-    
-    # Step 1: Normalize common character substitutions
-    text_normalized = text_lower
-    substitutions = {
-        '@': 'a', '4': 'a', '3': 'e', '1': 'i', '!': 'i', '0': 'o',
-        '$': 's', '5': 's', '7': 't', '+': 't', '8': 'b', '6': 'g',
-        '9': 'g', '(': 'c', '<': 'c', '[': 'c', '|': 'l', '2': 'z',
-    }
-    for char, replacement in substitutions.items():
-        text_normalized = text_normalized.replace(char, replacement)
-    
-    # Step 2: Remove all non-alphanumeric characters for checking
-    text_clean = re.sub(r'[^a-z0-9\s]', '', text_normalized)
-    text_original_clean = re.sub(r'[^a-z0-9\s]', '', text_lower)
-    
-    # Step 3: Split into words
-    words_normalized = set(text_clean.split())
-    words_original = set(text_original_clean.split())
-    all_words = words_normalized | words_original
-    
-    # Step 4: Check individual words
-    for word in all_words:
-        if word in BLOCKED_WORDS:
-            return True
-    
-    # Step 5: Check for blocked words as substrings in the cleaned text
-    # This catches things like "fuckyou" or "shithead"
-    for blocked in BLOCKED_WORDS:
-        if len(blocked) >= 4:  # Only check longer words to avoid false positives
-            if blocked in text_clean or blocked in text_original_clean:
-                return True
-    
-    # Step 6: Check for words with repeated characters (like "fuuuuck")
-    for word in all_words:
-        # Remove repeated characters (3+ repeats become 2)
-        import itertools
-        deduped = ''.join(c for c, _ in itertools.groupby(word))
-        if deduped in BLOCKED_WORDS:
-            return True
-    
-    # Step 7: Check for words separated by spaces/symbols (like "f u c k")
-    text_no_spaces = text_clean.replace(' ', '')
-    for blocked in BLOCKED_WORDS:
-        if len(blocked) >= 4 and blocked in text_no_spaces:
-            return True
-    
-    return False
 
 @app.after_request
 def add_security_headers(response):
@@ -1186,59 +1075,6 @@ def get_ai_analysis(sentence, word, user_guess):
 
 # ===== ROUTES =====
 
-@app.route('/admin/delete-wall-word/<int:word_id>', methods=['POST'])
-@login_required
-def delete_wall_word(word_id):
-    """Delete a word from the wall (admin only)"""
-    ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
-    if current_user.email != ADMIN_EMAIL:
-        flash('Access denied.', 'error')
-        return redirect(url_for('wall'))
-    
-    try:
-        wall_word = WallWord.query.get(word_id)
-        if not wall_word:
-            flash('Word not found.', 'error')
-            return redirect(url_for('wall'))
-        
-        # Store word name for flash message
-        word_name = wall_word.word
-        
-        # Delete the word
-        db.session.delete(wall_word)
-        db.session.commit()
-        
-        flash(f'✅ "{word_name}" removed from the wall.', 'success')
-        return redirect(url_for('wall'))
-        
-    except Exception as e:
-        db.session.rollback()
-        print(f"❌ Error deleting wall word: {e}")
-        flash('Error deleting word. Please try again.', 'error')
-        return redirect(url_for('wall'))
-
-@app.route('/admin/clear-wall', methods=['POST'])
-@login_required
-def clear_wall():
-    """Clear all words from the wall (admin only)"""
-    ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
-    if current_user.email != ADMIN_EMAIL:
-        flash('Access denied.', 'error')
-        return redirect(url_for('wall'))
-    
-    try:
-        count = WallWord.query.count()
-        WallWord.query.delete()
-        db.session.commit()
-        flash(f'✅ Cleared {count} words from the wall.', 'success')
-        return redirect(url_for('wall'))
-        
-    except Exception as e:
-        db.session.rollback()
-        print(f"❌ Error clearing wall: {e}")
-        flash('Error clearing wall. Please try again.', 'error')
-        return redirect(url_for('wall'))
-
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -1451,6 +1287,7 @@ def analyze():
         current_user.words_checked += 1
         current_user.total_time_spent += time_spent
         
+        # Track book (only if book info was provided)
         if book_title and author:
             book = Book.query.filter_by(title=book_title, author=author).first()
             if book:
@@ -1459,22 +1296,25 @@ def analyze():
                 book = Book(title=book_title, author=author)
                 db.session.add(book)
         
-            if not contains_blocked_content(word):
-                wall_word = WallWord.query.filter_by(word=word).first()
-                if wall_word:
-                    wall_word.total_checks += 1
-                    wall_word.average_score = (
-                        wall_word.average_score * (wall_word.total_checks - 1) + result['overallScore']
-                    ) / wall_word.total_checks
-                    wall_word.wall_type = 'fame' if wall_word.average_score >= 70 else 'shame'
-                else:
-                    wall_word = WallWord(
-                        word=word,
-                        wall_type='fame' if result['overallScore'] >= 70 else 'shame',
-                        total_checks=1,
-                        average_score=result['overallScore'],
-                    )
-                    db.session.add(wall_word)
+        # Add to wall (always — no book required, no content filter)
+        wall_word = WallWord.query.filter_by(word=word).first()
+        if wall_word:
+            wall_word.total_checks += 1
+            wall_word.average_score = (
+                wall_word.average_score * (wall_word.total_checks - 1) + result['overallScore']
+            ) / wall_word.total_checks
+            wall_word.wall_type = 'fame' if wall_word.average_score >= 70 else 'shame'
+        else:
+            wall_word = WallWord(
+                word=word,
+                wall_type='fame' if result['overallScore'] >= 70 else 'shame',
+                total_checks=1,
+                average_score=result['overallScore'],
+                sample_sentence=sentence,
+                book_title=book_title,
+                author=author
+            )
+            db.session.add(wall_word)
         
         db.session.commit()
         
@@ -1488,6 +1328,8 @@ def analyze():
     except Exception as e:
         db.session.rollback()
         print(f"Error in analyze: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': 'Analysis failed. Please try again.'}), 500
 
 @app.route('/api/autocomplete/<field>')
@@ -1509,13 +1351,6 @@ def autocomplete(field):
     
     return jsonify(results)
 
-@app.route('/wall')
-def wall():
-    fame_words = WallWord.query.filter_by(wall_type='fame')\
-        .order_by(WallWord.average_score.desc()).limit(25).all()
-    shame_words = WallWord.query.filter_by(wall_type='shame')\
-        .order_by(WallWord.average_score).limit(25).all()
-    return render_template('wall.html', fame_words=fame_words, shame_words=shame_words)
 
 # ===== DAILY STATS AGGREGATION =====
 def aggregate_daily_stats(date=None):
@@ -2065,22 +1900,6 @@ importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')'''
 @app.route('/test-ads')
 def test_ads():
     return render_template('test-ads.html')
-
-@app.route('/admin/clean-wall')
-@login_required
-def admin_clean_wall():
-    ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
-    if current_user.email != ADMIN_EMAIL:
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    deleted = 0
-    bad_words = WallWord.query.all()
-    for w in bad_words:
-        if contains_blocked_content(w.word) or (w.sample_sentence and contains_blocked_content(w.sample_sentence)):
-            db.session.delete(w)
-            deleted += 1
-    db.session.commit()
-    return jsonify({'success': True, 'deleted': deleted})
 
 @app.errorhandler(404)
 def not_found_error(error):
